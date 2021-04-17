@@ -1,0 +1,49 @@
+docker image pull (docker hub, baixa e executa)
+docker image ls(lista imagens)
+docker image rm(remover imagen:<nome tag><nome repository>)
+ex: sudo docker image rm redis:latest cod3r-redis
+sudo docker image inspect redis:latest(info sobre imagen)
+sudo docker image tag redis:latest cod3r-redis (colocar tag => ...<img de origem>:<tag origem><nova tag>)
+sudo docker image build (pega arquivo construtor e gera uma imagem)
+ex: sudo docker image build -t ex-simple-build .
+sudo docker image push
+
+--construir conteiner apartir da imagem criada mapeada na porta do container 80 para 80 do host
+sudo docker container run -p 80:80 ex-simple-build
+
+execute http://localhost/ no host
+
+--build com arg
+sudo docker image build -t ex-build-arg .
+
+sudo docker container run ex-build-arg bash -c 'echo $S3_BUCKET'
+
+sudo docker image build --build-arg S3_BUCKET=myapp -t ex-build-arg .
+
+--pesquisar o que se deseja no arquivo de image
+sudo docker image inspect --format="{{index .Config.Labels \"maintainer\"}}" ex-build-arg
+
+--com COPY
+sudo docker image build -t ex-build-copy .
+
+sudo docker container run -p 80:80 ex-build-copy
+
+--build dev
+sudo docker image build -t ex-build-dev .
+
+--no modo intertaivo mapeiei o volume para pegar o arquivo runpy na maquina host na porta definida
+sudo docker container run -it -v $(pwd):/app -p 80:8000 --name python-server ex-build-dev
+
+--deixe o container acima funcionando e abra outro terminal
+
+--rodar outro container que vai ler o conteudo do arquivo .log criado pelo script python (run.py) do container acima
+sudo docker container run -it --volumes-from=python-server debian cat /log/http-server.log
+
+--subir uma imagem para o docker hub
+-criar uma nova tag para a imagem
+sudo docker image tag ex-simple-build marvgm/simple-build:1.0
+
+-logar no docker hub
+sudo docker login --username=marvgm
+-fazer o push
+sudo docker image push marvgm/simple-build:1.0
